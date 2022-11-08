@@ -11,6 +11,7 @@ import {
 } from "./libs/initialSetup";
 
 import authRoutes from "./routes/auth.routes";
+import scoreRoutes from "./routes/score.routes";
 
 const app = express();
 
@@ -35,4 +36,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/scores", scoreRoutes);
+
 export default app;
