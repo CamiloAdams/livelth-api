@@ -19,7 +19,21 @@ export const createScore = async (req, res) => {
 
         const { numero_minijuego, puntaje, tiempo } = req.body;
 
-        if (puntaje > user.puntajes_maximos[numero_minijuego]) {
+        if (numero_minijuego == 2) {
+            let puntajesMaximos = user.puntajes_maximos;
+            if (
+                user.puntajes_maximos[numero_minijuego] == 0 ||
+                puntaje < user.puntajes_maximos[numero_minijuego]
+            ) {
+                puntajesMaximos[numero_minijuego] = puntaje;
+                const updateHighScore = await User.findByIdAndUpdate(
+                    decoded.id,
+                    { puntajes_maximos: puntajesMaximos },
+                    { new: true }
+                );
+                console.log(updateHighScore);
+            }
+        } else if (puntaje > user.puntajes_maximos[numero_minijuego]) {
             let puntajesMaximos = user.puntajes_maximos;
             for (const key in puntajesMaximos) {
                 if (key == numero_minijuego) puntajesMaximos[key] = puntaje;

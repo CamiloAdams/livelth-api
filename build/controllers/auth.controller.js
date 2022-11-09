@@ -23,13 +23,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 var register = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(req, res) {
-    var _req$body, username, nombres, apellidos, fecha_nacimiento, email, password, colegio, userFound, emailFound, newUser, role, foundSchool, savedUser, token, roles;
+    var _req$body, username, nombres, apellidos, fecha_nacimiento, email, genero, password, colegio, userFound, emailFound, newUser, role, foundSchool, savedUser, token, roles;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
             //Get the parameters stored in req.body
-            _req$body = req.body, username = _req$body.username, nombres = _req$body.nombres, apellidos = _req$body.apellidos, fecha_nacimiento = _req$body.fecha_nacimiento, email = _req$body.email, password = _req$body.password, colegio = _req$body.colegio; //check if username or email already exists
+            _req$body = req.body, username = _req$body.username, nombres = _req$body.nombres, apellidos = _req$body.apellidos, fecha_nacimiento = _req$body.fecha_nacimiento, email = _req$body.email, genero = _req$body.genero, password = _req$body.password, colegio = _req$body.colegio; //check if username or email already exists
             _context.next = 3;
             return _User["default"].findOne({
               username: username
@@ -63,66 +63,68 @@ var register = /*#__PURE__*/function () {
             _context.t2 = nombres;
             _context.t3 = apellidos;
             _context.t4 = fecha_nacimiento;
-            _context.t5 = email;
-            _context.next = 19;
+            _context.t5 = genero;
+            _context.t6 = email;
+            _context.next = 20;
             return _User["default"].encryptPassword(password);
-          case 19:
-            _context.t6 = _context.sent;
-            _context.t7 = {
-              1: 0,
-              2: 0,
-              3: 0
-            };
+          case 20:
+            _context.t7 = _context.sent;
             _context.t8 = {
               1: 0,
               2: 0,
               3: 0
             };
             _context.t9 = {
+              1: 0,
+              2: 0,
+              3: 0
+            };
+            _context.t10 = {
               username: _context.t1,
               nombres: _context.t2,
               apellidos: _context.t3,
               fecha_nacimiento: _context.t4,
-              email: _context.t5,
-              password: _context.t6,
-              puntajes_maximos: _context.t7,
-              tiempo_invertido: _context.t8
+              genero: _context.t5,
+              email: _context.t6,
+              password: _context.t7,
+              puntajes_maximos: _context.t8,
+              tiempo_invertido: _context.t9
             };
-            newUser = new _context.t0(_context.t9);
-            _context.next = 26;
+            newUser = new _context.t0(_context.t10);
+            _context.next = 27;
             return _Role["default"].findOne({
               name: "user"
             });
-          case 26:
+          case 27:
             role = _context.sent;
             newUser.roles = [role._id];
 
             // }
-            _context.next = 30;
+            _context.next = 31;
             return _School["default"].findOne({
               name: colegio
             });
-          case 30:
+          case 31:
             foundSchool = _context.sent;
             if (foundSchool) {
-              _context.next = 33;
+              _context.next = 34;
               break;
             }
             return _context.abrupt("return", res.status(400).json({
               message: "Colegio no encontrado"
             }));
-          case 33:
+          case 34:
             newUser.id_colegio = foundSchool._id;
 
             // Save new user in db
-            _context.next = 36;
+            _context.next = 37;
             return newUser.save();
-          case 36:
-            _context.next = 38;
+          case 37:
+            _context.next = 39;
             return _context.sent.populate("roles", {
               _id: 0
             });
-          case 38:
+          case 39:
             savedUser = _context.sent;
             token = _jsonwebtoken["default"].sign({
               id: savedUser._id
@@ -137,7 +139,7 @@ var register = /*#__PURE__*/function () {
               token: token,
               roles: roles
             });
-          case 43:
+          case 44:
           case "end":
             return _context.stop();
         }

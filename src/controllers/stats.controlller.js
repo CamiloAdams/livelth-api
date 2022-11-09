@@ -1,8 +1,8 @@
 import Score from "../models/Score";
 import User from "../models/User";
-import Guide from "../models/Guide";
 import jwt from "jsonwebtoken";
 import config from "../config";
+import School from "../models/School";
 
 export const getUserStats = async (req, res) => {
     try {
@@ -20,23 +20,23 @@ export const getUserStats = async (req, res) => {
 
         if (!user) return res.status(404).json({ message: "No user found" });
 
-        const usersAvg = await usersAverageScore();
-        const usersHighScoreAvg = await usersAverageHighScore();
-        const userAvg = await userAverageScore(user.id);
-        const scoresHistory = await userScoreHistory(user.id);
         res.status(201).json({
-            high_score: user.high_score,
-            guias_completadas: user.guias_completadas.length,
-            avg_score: userAvg,
-            high_score_vs_users_avg_high_score: {
-                high_score: user.high_score,
-                users_avg: usersHighScoreAvg,
+            tiempo_total_invertido:
+                user.tiempo_invertido[1] +
+                user.tiempo_invertido[2] +
+                user.tiempo_invertido[3],
+            minijuego1: {
+                puntaje_maximo: user.puntajes_maximos[1],
+                tiempo_invertido: user.tiempo_invertido[1],
             },
-            avg_score_vs_users_avg_scores: {
-                avg_score: userAvg,
-                users_avg: usersAvg,
+            minijuego2: {
+                puntaje_maximo: user.puntajes_maximos[2],
+                tiempo_invertido: user.tiempo_invertido[2],
             },
-            scores_history: scoresHistory,
+            minijuego3: {
+                puntaje_maximo: user.puntajes_maximos[3],
+                tiempo_invertido: user.tiempo_invertido[3],
+            },
         });
     } catch (error) {
         console.log(error);
@@ -60,13 +60,16 @@ export const getAdminStats = async (req, res) => {
 
         if (!user) return res.status(404).json({ message: "No user found" });
 
-        const usersAvg = await usersAverageScore();
-        const usersHighScoreAvg = await usersAverageHighScore();
+        // const usersAvg = await usersAverageScore();
+        // const usersHighScoreAvg = await usersAverageHighScore();
+
         res.status(201).json({
-            high_scores_avg: usersHighScoreAvg,
-            avg_scores: usersAvg,
-            guides_vs_avg_high_score: await getGuidesXHighScore(),
-            ages_vs_high_score: await getAgeXHighScore(),
+            hombres_vs_mujeres: {
+                hombres: await (await User.find({ genero: "H" })).length,
+                mujeres: await (await User.find({ genero: "M" })).length,
+            },
+            usuarios_x_colegio: await getUsersXSchool(),
+            promedio_puntajes_maximos: await usersAverageScore(),
         });
     } catch (error) {
         console.log(error);
@@ -75,26 +78,51 @@ export const getAdminStats = async (req, res) => {
 };
 
 const usersAverageScore = async (req, res) => {
-    const scores = await Score.find();
-    var averageScore = 0;
+    let min1 = 0;
+    let min2 = 0;
+    let min3 = 0;
 
-    for (let index = 0; index < scores.length; index++) {
-        const element = scores[index];
-        averageScore += element.respuestas_correctas;
+    const users = await User.find();
+
+    for (let index = 0; index < users.length; index++) {
+        const element = users[index];
+        if (element.id_colegio == undefined) {
+            continue;
+        }
+        min1 += element.puntajes_maximos[1];
+        min2 += element.puntajes_maximos[2];
+        min3 += element.puntajes_maximos[3];
     }
 
-    return (averageScore /= scores.length);
+    min1 /= users.length - 1;
+    min2 /= users.length - 1;
+    min3 /= users.length - 1;
+
+    return {
+        minijuego1: min1,
+        minijuego2: min2,
+        minijuego3: min3,
+    };
 };
 
-async function usersAverageHighScore() {
-    const usersHighScores = await User.find({}, { _id: 0 });
-    var averageScore = 0;
+async function getUsersXSchool() {
+    const schools = await School.find();
+    const users = await User.find().populate("id_colegio");
+    let objectSchools = {};
 
-    for (let index = 0; index < usersHighScores.length; index++) {
-        const element = usersHighScores[index];
-        averageScore += element.high_score;
+    for (let index = 0; index < schools.length; index++) {
+        const element = schools[index];
+        objectSchools[element.name] = 0;
     }
-    return (averageScore /= usersHighScores.length);
+
+    for (let index = 0; index < users.length; index++) {
+        const element = users[index];
+        if (element.id_colegio == undefined) {
+            continue;
+        }
+        objectSchools[element.id_colegio.name]++;
+    }
+    return objectSchools;
 }
 
 async function userAverageScore(userId) {

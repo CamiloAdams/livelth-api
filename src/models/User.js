@@ -11,6 +11,7 @@ const userSchema = new Schema(
         nombres: String,
         apellidos: String,
         fecha_nacimiento: Date,
+        genero: String,
         email: {
             type: String,
             unique: true,

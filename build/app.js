@@ -11,6 +11,8 @@ var _cors = _interopRequireDefault(require("cors"));
 var _initialSetup = require("./libs/initialSetup");
 var _auth = _interopRequireDefault(require("./routes/auth.routes"));
 var _score = _interopRequireDefault(require("./routes/score.routes"));
+var _stats = _interopRequireDefault(require("./routes/stats.routes"));
+var _user = _interopRequireDefault(require("./routes/user.routes"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 var app = (0, _express["default"])();
 (0, _initialSetup.createRoles)();
@@ -31,5 +33,7 @@ app.get("/", function (req, res) {
 });
 app.use("/api/auth", _auth["default"]);
 app.use("/api/scores", _score["default"]);
+app.use("/api/stats", _stats["default"]);
+app.use("/api/user", _user["default"]);
 var _default = app;
 exports["default"] = _default;

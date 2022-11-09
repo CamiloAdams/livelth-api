@@ -19,6 +19,7 @@ export const register = async (req, res) => {
         apellidos,
         fecha_nacimiento,
         email,
+        genero,
         password,
         colegio,
     } = req.body;
@@ -39,6 +40,7 @@ export const register = async (req, res) => {
         nombres,
         apellidos,
         fecha_nacimiento,
+        genero,
         email,
         password: await User.encryptPassword(password),
         puntajes_maximos: { 1: 0, 2: 0, 3: 0 },
